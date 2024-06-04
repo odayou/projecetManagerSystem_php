@@ -8,6 +8,7 @@ use app\common\Model\ProjectLog;
 use app\common\Model\TaskTag;
 use app\common\Model\TaskToTag;
 use app\common\Model\TaskWorkTime;
+use app\common\Model\Project;
 use controller\BasicApi;
 use Exception;
 use think\db\exception\DataNotFoundException;
@@ -527,11 +528,54 @@ class Task extends BasicApi
         }
         if (isset($param['beginTime'])) {
             $param['begin_time'] = $param['beginTime'];
+            $param['done_time'] = strtotime($param['beginTime']);
             unset($param['beginTime']);
         }
         $result = TaskWorkTime::update($param, ['code' => $code]);
         $this->success();
     }
+
+    /**
+     * 按任务获取今天的工时总计，并附带任务id、所属项目id
+     */
+    public function _getTodayWorkTime()
+    {
+        // 按任务分组后查询出task_code的详细信息和其所属的项目
+        $workTimeList = TaskWorkTime::whereTime('done_time', 'd')->select()->toArray();
+        // task_code相同时合并为同一个但是num加总
+        $result = [];
+        $workTimeList = array_reduce($workTimeList, function ($result, $current) {
+            if (isset($result[$current['task_code']])) {
+                $result[$current['task_code']]['num'] += $current['num'];
+            } else {
+                $result[$current['task_code']] = $current;
+            }
+            return $result;
+        }, []);
+        $taskList = $this->model->where([['code', 'in', array_unique(array_column($workTimeList, 'task_code'))]])->select()->toArray();
+        $projectList = Project::where([['code', 'in', array_unique(array_column($taskList, 'project_code'))]])->select()->toArray();
+        foreach ($workTimeList as $key => $value) {
+            foreach ($taskList as $k => $v) {
+                if ($value['task_code'] == $v['code']) {
+                    foreach ($projectList as $p => $pv) {
+                        if ($v['project_code'] == $pv['code']) {
+                            $result[] = [
+                                'task_code' => $value['task_code'],
+                                'name' => $v['name'],
+                                'project_code' => $v['project_code'],
+                                'project_name' => $pv['name'],
+                                'done_time' => $value['done_time'],
+                                'num' => $value['num'],
+                                'content' => $value['content']
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+        $this->success('', $result);
+    }
+
 
     /**
      * 删除工时

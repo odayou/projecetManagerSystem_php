@@ -8,7 +8,7 @@ return [
     // 应用版本
     'app_version'            =>  Env::get('app.app_version', '1.0.0'),
     // 应用地址
-    'app_host'               => Env::get('app.app_host', ''),
+    'app_host'               => Env::get('app.app_host', '127.0.0.1'),
     // 应用调试模式
     'app_debug'              => Env::get('app.app_debug', false),
     // 应用Trace

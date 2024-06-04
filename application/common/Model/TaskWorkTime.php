@@ -45,6 +45,8 @@ class TaskWorkTime extends CommonModel
         if (!$num || $num < 0 || !is_numeric($num)) {
             return error(6, '请输入有效工时');
         }
+        //2024-06-04 13:30这种时间转为秒级时间戳 
+
         $data = [
             'create_time' => nowTime(),
             'code' => createUniqueCode('TaskWorkTime'),
@@ -52,6 +54,7 @@ class TaskWorkTime extends CommonModel
             'num' => $num,
             'content' => $content,
             'begin_time' => $beginTime,
+            'done_time' => strtotime($beginTime),
             'member_code' => $memberCode,
         ];
         $result = self::create($data)->toArray();
