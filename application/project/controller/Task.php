@@ -501,8 +501,8 @@ class Task extends BasicApi
      */
     public function saveTaskWorkTime()
     {
-        $param = Request::only('beginTime,num,content,taskCode');
-        $result = TaskWorkTime::createData($param['taskCode'], getCurrentMember()['code'], $param['num'], $param['beginTime'], $param['content']);
+        $param = Request::only('beginTime,num,content,taskCode,endTime');
+        $result = TaskWorkTime::createData($param['taskCode'], getCurrentMember()['code'], $param['num'], $param['beginTime'], $param['endTime'], $param['content']);
         if (isError($result)) {
             $this->error($result['msg'], $result['errno']);
         }
@@ -518,7 +518,7 @@ class Task extends BasicApi
      */
     public function editTaskWorkTime()
     {
-        $param = Request::only('beginTime,num,content');
+        $param = Request::only('beginTime,endTime,num,content');
         $code = Request::param('code');
         if ($code) {
             $workTime = TaskWorkTime::where(['code' => $code])->find();
@@ -529,7 +529,17 @@ class Task extends BasicApi
         if (isset($param['beginTime'])) {
             $param['begin_time'] = $param['beginTime'];
             $param['done_time'] = strtotime($param['beginTime']);
+            $param['end_time'] = $param['endTime'];
+       
+            if ( $param['end_time'] < $param['done_time']) {
+                return error(7, '结束时间不能小于开始时间');
+            }
+            if (!$param['num'] && $param['end_time']) {
+            // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
+                $param['num'] = round(($param['end_time'] - $param['done_time']) / 3600, 2);
+            }
             unset($param['beginTime']);
+            unset($param['endTime']);
         }
         $result = TaskWorkTime::update($param, ['code' => $code]);
         $this->success();

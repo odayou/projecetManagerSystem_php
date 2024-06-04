@@ -27,7 +27,7 @@ class TaskWorkTime extends CommonModel
      * @throws ModelNotFoundException
      * @throws DbException
      */
-    public static function createData($taskCode, $memberCode, $num, $beginTime, $content = '')
+    public static function createData($taskCode, $memberCode, $num, $beginTime, $endTime, $content = '')
     {
         if (!$taskCode) {
             return error(1, '请选择任务');
@@ -42,11 +42,26 @@ class TaskWorkTime extends CommonModel
         if (!$beginTime) {
             return error(4, '请选择开始时间');
         }
-        if (!$num || $num < 0 || !is_numeric($num)) {
-            return error(6, '请输入有效工时');
+       
+        if (!$endTime) {
+            if (!$num || $num < 0 || !is_numeric($num)) {
+                return error(6, '请输入有效工时');
+            } else {
+                return error(5, '请选择结束时间');
+            }
         }
-        //2024-06-04 13:30这种时间转为秒级时间戳 
+        
+        $doneTimeValue = strtotime($beginTime);
 
+       
+        if ($endTime < $doneTimeValue) {
+            return error(7, '结束时间不能小于开始时间');
+        }
+        if (!$num && $doneTimeValue) {
+        // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
+            $num = round(($endTime - $doneTimeValue) / 3600, 2);
+        }
+      
         $data = [
             'create_time' => nowTime(),
             'code' => createUniqueCode('TaskWorkTime'),
@@ -55,6 +70,7 @@ class TaskWorkTime extends CommonModel
             'content' => $content,
             'begin_time' => $beginTime,
             'done_time' => strtotime($beginTime),
+            'end_time' => $endTime,
             'member_code' => $memberCode,
         ];
         $result = self::create($data)->toArray();
