@@ -535,8 +535,8 @@ class Task extends BasicApi
                 return error(7, '结束时间不能小于开始时间');
             }
             if ($param['end_time']) {
-            // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
-                $param['num'] = round(($param['end_time'] - $param['done_time']) / 3600, 2);
+            // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时
+                $param['num'] = diffHours($param['done_time'], $param['end_time']);
             }
             unset($param['beginTime']);
             unset($param['endTime']);

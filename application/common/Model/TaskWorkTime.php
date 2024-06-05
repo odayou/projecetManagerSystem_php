@@ -59,7 +59,7 @@ class TaskWorkTime extends CommonModel
         }
         // if (!$num && $doneTimeValue) {
         // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
-            $num = round(($endTime - $doneTimeValue) / 3600, 2);
+            $num = diffHours($doneTimeValue, $endTime);
         // }
       
         $data = [

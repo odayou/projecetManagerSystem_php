@@ -685,3 +685,22 @@ function javaDesDecrypt($dat, $key)
     return openssl_decrypt($str, 'des-ecb', $key, OPENSSL_RAW_DATA);
 }
 
+/**
+ * 计算时间戳的小时差
+ *
+ * @param [int] $start_time 开始时间戳(秒)
+ * @param [int] $end_time 结束时间戳(秒)
+ * @return void
+ */
+function diffHours($start_time, $end_time) {
+    if (!$start_time || !$end_time) {
+        return 0;
+    }
+    // 将秒数设为0，以确保只考虑到分钟
+    $start_time = strtotime(date('Y-m-d H:i:00', $start_time));
+    $end_time = strtotime(date('Y-m-d H:i:00', $end_time));
+
+    // 计算时间差值（单位为小时），精确到小数点后两位，小数位四舍五入
+    return round(($end_time - $start_time) / 3600, 2);
+}
+
