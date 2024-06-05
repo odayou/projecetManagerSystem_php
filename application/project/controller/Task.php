@@ -534,7 +534,7 @@ class Task extends BasicApi
             if ( $param['end_time'] < $param['done_time']) {
                 return error(7, '结束时间不能小于开始时间');
             }
-            if (!$param['num'] && $param['end_time']) {
+            if ($param['end_time']) {
             // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
                 $param['num'] = round(($param['end_time'] - $param['done_time']) / 3600, 2);
             }
@@ -543,6 +543,65 @@ class Task extends BasicApi
         }
         $result = TaskWorkTime::update($param, ['code' => $code]);
         $this->success();
+    }
+
+    /**
+     * 获取本周的工时
+     */
+    public function _getThisWeekWorkTime()
+    {
+        // 按任务分组后查询出task_code的详细信息和其所属的项目
+        $workTimeListResult = TaskWorkTime::whereTime('done_time', 'w')->select()->toArray();
+        // 按日分组
+        $workTimeListByDay = array_reduce($workTimeListResult, function ($result, $current) {
+            $result[date("Y-m-d",$current['done_time'])][] = $current;
+            return $result;
+        }, []);
+        if (empty($workTimeListByDay)) {
+            $this->success('', []);
+        }
+        $taskList = $this->model->where([['code', 'in', array_unique(array_column($workTimeListResult, 'task_code'))]])->select()->toArray();
+        $projectList = Project::where([['code', 'in', array_unique(array_column($taskList, 'project_code'))]])->select()->toArray();
+        $result = [];
+        foreach ($workTimeListByDay as $key => $workTimeList) {
+            // 按任务分组
+            // task_code相同时合并为同一个但是num加总
+            $workTimeList = array_reduce($workTimeList, function ($result, $current) {
+                if (isset($result[$current['task_code']])) {
+                    $result[$current['task_code']]['num'] += $current['num'];
+                } else {
+                    $result[$current['task_code']] = $current;
+                }
+                return $result;
+            }, []);
+            // $workTimeList中所有num加总
+            $totalNum = array_reduce($workTimeList, function ($result, $current) {
+                $result += $current['num'];
+                return $result;
+            }, 0);
+            $result[$key]['totalNum'] = $totalNum;
+            foreach ($workTimeList as $key1 => $value) {
+                foreach ($taskList as $k2 => $v) {
+                    if ($value['task_code'] == $v['code']) {
+                        foreach ($projectList as $p => $pv) {
+                            if ($v['project_code'] == $pv['code']) {
+                                $result[$key]['list'][] = [
+                                    'task_code' => $value['task_code'],
+                                    'name' => $v['name'],
+                                    'project_code' => $v['project_code'],
+                                    'project_name' => $pv['name'],
+                                    'done_time' => $value['done_time'],
+                                    'num' => $value['num'],
+                                    'content' => $value['content']
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        $this->success('', $result);
     }
 
     /**

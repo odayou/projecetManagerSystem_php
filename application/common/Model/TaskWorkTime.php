@@ -57,10 +57,10 @@ class TaskWorkTime extends CommonModel
         if ($endTime < $doneTimeValue) {
             return error(7, '结束时间不能小于开始时间');
         }
-        if (!$num && $doneTimeValue) {
+        // if (!$num && $doneTimeValue) {
         // 根据$doneTimeValue，$endTimeValue 计算消耗了几个小时（精确到小数点后两位，小数位四舍五入）
             $num = round(($endTime - $doneTimeValue) / 3600, 2);
-        }
+        // }
       
         $data = [
             'create_time' => nowTime(),
