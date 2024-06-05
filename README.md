@@ -6,6 +6,8 @@
 
 **安装指南：https://www.yuque.com/bzsxmz/siuq1w/kggzna**
 
+**采用php V3.3.9**
+
 需要配合[前端项目](https://github.com/a54552239/pearProject)使用，链接：https://github.com/a54552239/pearProject
 
 有不明白的地方的可以加群：275264059，或者联系我，QQ：545522390
