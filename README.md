@@ -56,4 +56,34 @@
 
 <img src="https://static.vilson.xyz/pay/alipay2.png" alt="Sample"  width="150" height="150">
 
+### 魔改内容
 
+#### 功能
+
+- 工时增加了结束时间
+- 工时的开始时间存储为时间戳，而不是格式化的字符串，便于计算查询
+- 增加当日、本周工时统计api
+- 首页增加当日、本周工时统计板块
+- 自动根据工时的起止时间，计算工时的时间花费
+
+#### 数据库
+
+- 任务工时表增加了结束时间、时间戳类型的开始时间
+
+```sql
+CREATE TABLE `pear_task_work_time` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_code` varchar(30) DEFAULT '0' COMMENT '任务ID',
+  `member_code` varchar(30) DEFAULT '' COMMENT '成员id',
+  `create_time` varchar(30) DEFAULT NULL,
+  `content` varchar(500) DEFAULT NULL COMMENT '描述',
+  `begin_time` varchar(30) DEFAULT NULL COMMENT '开始时间',
+  `num` decimal(10,3) DEFAULT '0.000' COMMENT '工时',
+  `code` varchar(30) DEFAULT NULL COMMENT 'id',
+  `done_time` int(12) NOT NULL COMMENT '开始时间',
+  `end_time` int(12) NOT NULL COMMENT '结束时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `id` (`id`) USING BTREE,
+  UNIQUE KEY `code` (`code`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='任务工时表';
+```
