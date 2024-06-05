@@ -1,6 +1,6 @@
 # PearProject
 
-**Pear，梨子项目管理系统**
+**魔改自"Pear，梨子项目管理系统"**
 
 **相关资料：https://www.yuque.com/bzsxmz**
 
