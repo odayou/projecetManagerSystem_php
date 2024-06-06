@@ -561,6 +561,12 @@ class Task extends BasicApi
             $this->success('', []);
         }
         $taskList = $this->model->where([['code', 'in', array_unique(array_column($workTimeListResult, 'task_code'))]])->select()->toArray();
+        $parentTaskList = $this->model->where([['code', 'in', array_unique(array_column($taskList, 'pcode'))]])->select()->toArray();
+        // 以$parentTaskList的code作为key，生成map
+        $parentTaskMap = array_reduce($parentTaskList, function ($result, $current) {
+            $result[$current['code']] = $current;
+            return $result;
+        }, []);
         $projectList = Project::where([['code', 'in', array_unique(array_column($taskList, 'project_code'))]])->select()->toArray();
         $result = [];
         foreach ($workTimeListByDay as $key => $workTimeList) {
@@ -585,6 +591,7 @@ class Task extends BasicApi
                     if ($value['task_code'] == $v['code']) {
                         foreach ($projectList as $p => $pv) {
                             if ($v['project_code'] == $pv['code']) {
+                                $parentTask = $parentTaskMap[$v['pcode']] ?? [];
                                 $result[$key]['list'][] = [
                                     'task_code' => $value['task_code'],
                                     'name' => $v['name'],
@@ -592,7 +599,10 @@ class Task extends BasicApi
                                     'project_name' => $pv['name'],
                                     'done_time' => $value['done_time'],
                                     'num' => $value['num'],
-                                    'content' => $value['content']
+                                    'content' => $value['content'],
+                                    'parentTaskCode' => $parentTask['code'] ?? "",
+                                    'parentTaskName' => $parentTask['name'] ?? "",
+                                    'parentTaskProjectCode' => $parentTask['project_code'] ?? "",
                                 ];
                             }
                         }
