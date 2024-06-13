@@ -551,7 +551,11 @@ class Task extends BasicApi
     public function _getThisWeekWorkTime()
     {
         // 按任务分组后查询出task_code的详细信息和其所属的项目
+        // 获取本月的工时
+        // $workTimeListResult = TaskWorkTime::whereTime('done_time', 'm')->select()->toArray();
+        // 获取本周工时
         $workTimeListResult = TaskWorkTime::whereTime('done_time', 'w')->select()->toArray();
+
         // 按日分组
         $workTimeListByDay = array_reduce($workTimeListResult, function ($result, $current) {
             $result[date("Y-m-d",$current['done_time'])][] = $current;

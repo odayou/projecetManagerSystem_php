@@ -68,7 +68,7 @@ class Events extends CommonModel
             'begin_time' => $beginTime,
             'end_time' => $endTime,
             'position' => $position,
-            'all_day' => $allDay,
+            'all_day' => $allDay ? 1 : 0,
             'description' => $description,
             'organization_code' => $organizationCode,
             'created_by' => $createdBy,
