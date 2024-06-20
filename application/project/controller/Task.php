@@ -582,6 +582,8 @@ class Task extends BasicApi
                 } else {
                     $result[$current['task_code']] = $current;
                 }
+                // 工时明细
+                $result[$current['task_code']]['time_detail'][] = array('start_time' => $current['done_time'], 'end_time' => $current['end_time']);
                 return $result;
             }, []);
             // $workTimeList中所有num加总
@@ -607,6 +609,7 @@ class Task extends BasicApi
                                     'parentTaskCode' => $parentTask['code'] ?? "",
                                     'parentTaskName' => $parentTask['name'] ?? "",
                                     'parentTaskProjectCode' => $parentTask['project_code'] ?? "",
+                                    'time_detail' => $value['time_detail'],
                                 ];
                             }
                         }
