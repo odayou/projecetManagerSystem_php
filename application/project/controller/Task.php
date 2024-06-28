@@ -455,7 +455,7 @@ class Task extends BasicApi
             $list['list'] = $projectLogModel->where($where)->order('id asc')->select()->toArray();
             $list['total'] = count($list['list']);
         } else {
-            $list = $projectLogModel->_list($where, 'id desc');
+            $list = $projectLogModel->_list($where, 'id asc');
             if ($list['list']) {
                 $list['list'] = array_reverse($list['list']);
             }
@@ -483,7 +483,7 @@ class Task extends BasicApi
     public function _taskWorkTimeList()
     {
         $taskCode = Request::param('taskCode');
-        $workTimeList = TaskWorkTime::where(['task_code' => $taskCode])->select()->toArray();
+        $workTimeList = TaskWorkTime::where(['task_code' => $taskCode])->order('id desc')->select()->toArray();
         if ($workTimeList) {
             foreach ($workTimeList as &$workTime) {
                 $member = Member::where(['code' => $workTime['member_code']])->field('avatar,name')->find();
