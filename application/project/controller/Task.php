@@ -550,7 +550,7 @@ class Task extends BasicApi
      */
     public function _getThisWeekWorkTime()
     {
-        // 根据接收到的参数workTimeRangeType决定查询哪个时间范围的数据，枚举有：本周、本月、上周+本周、近7天
+        // 根据接收到的参数workTimeRangeType决定查询哪个时间范围的数据，枚举有：本周、本月、上周+本周、近7天、近30天
         $workTimeRangeType = Request::param('workTimeRangeType');
         $workTimeListResult = [];
         if ($workTimeRangeType == '本周') {
@@ -565,8 +565,12 @@ class Task extends BasicApi
         } elseif ($workTimeRangeType == '近7天')
         {
             // 获取近7天的工时
-            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'last 7 days')->select()->toArray();
-        } else {
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'between', [strtotime('-7 days'), time()])->select()->toArray();
+        } 
+        elseif ($workTimeRangeType = '近30天') {
+            // 获取近30天的工时
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'between', [strtotime('-30 days'), time()])->select()->toArray();
+        }else {
             // 查询工时大于0的
             $workTimeListResult = TaskWorkTime::whereTime('done_time', '>0')->select()->toArray();
         }
