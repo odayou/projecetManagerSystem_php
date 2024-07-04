@@ -550,15 +550,30 @@ class Task extends BasicApi
      */
     public function _getThisWeekWorkTime()
     {
-        // 按任务分组后查询出task_code的详细信息和其所属的项目
-        // 获取本月的工时
-        // $workTimeListResult = TaskWorkTime::whereTime('done_time', 'm')->select()->toArray();
-        // 获取本周的工时
-        // $workTimeListResult = TaskWorkTime::whereTime('done_time', 'w')->select()->toArray();
+        // 根据接收到的参数workTimeRangeType决定查询哪个时间范围的数据，枚举有：本周、本月、上周+本周、近7天
+        $workTimeRangeType = Request::param('workTimeRangeType');
+        $workTimeListResult = [];
+        if ($workTimeRangeType == '本周') {
+            // 获取本周的工时
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'w')->select()->toArray();
+        } elseif ($workTimeRangeType == '本月') {
+            // 获取本月的工时
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'm')->select()->toArray();
+        } elseif ($workTimeRangeType == '上周+本周') {
+            // 获取本周及上周工时
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'between', [strtotime('last week monday'), strtotime('next monday')])->select()->toArray();
+        } elseif ($workTimeRangeType == '近7天')
+        {
+            // 获取近7天的工时
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', 'last 7 days')->select()->toArray();
+        } else {
+            // 查询工时大于0的
+            $workTimeListResult = TaskWorkTime::whereTime('done_time', '>0')->select()->toArray();
+        }
 
-        // 获取本周及上周工时
-        $workTimeListResult = TaskWorkTime::whereTime('done_time', 'between', [strtotime('last week monday'), strtotime('next monday')])->select()->toArray();
-      
+
+        // 按任务分组后查询出task_code的详细信息和其所属的项目
+     
         // 按日分组
         $workTimeListByDay = array_reduce($workTimeListResult, function ($result, $current) {
             $result[date("Y-m-d",$current['done_time'])][] = $current;
