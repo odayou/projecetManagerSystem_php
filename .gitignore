@@ -14,3 +14,4 @@
 /composer.lock
 /config/dingtalk.php
 /config/mail.php
+.vscode/

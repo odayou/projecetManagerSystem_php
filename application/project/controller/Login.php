@@ -54,6 +54,7 @@ class Login extends BasicApi
      */
     public function index()
     {
+        // exit(121212);
 //        if ($this->request->isGet()) {
 //            var_dump(11);die;
 //            return $this->fetch('', ['title' => '用户登录']);

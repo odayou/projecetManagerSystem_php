@@ -9,6 +9,8 @@
 **基于PHP V7.3.9部署否则使用问题挺多的**
 
 需要配合[前端项目](https://github.com/odayou/projecetManagerSystem_vue)使用
+## 调试
+在/.env中可以设置配置信息 如开启调试模式、cache系统的配置
 
 ### 登录 ###
 账号：123456 密码：123456
